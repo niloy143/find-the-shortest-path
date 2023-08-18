@@ -11,85 +11,106 @@ const selects = {
   },
 };
 
+const defaults = {
+  grid: [10, 15],
+  start: [0, 0],
+  end: [9, 14],
+  obstacles: JSON.parse(
+    "[[2,1],[3,1],[4,1],[5,1],[5,0],[6,0],[7,0],[7,1],[8,1],[8,2],[8,4],[8,5],[6,5],[6,4],[6,3],[5,3],[4,3],[3,3],[3,4],[3,6],[3,7],[2,7],[2,6],[1,6],[1,5],[1,4],[1,7],[1,8],[1,9],[1,10],[2,10],[3,10],[4,10],[5,10],[5,8],[6,8],[6,7],[8,9],[7,10],[7,12],[6,12],[5,12],[5,13],[4,13],[2,14],[7,2],[5,4],[5,5],[5,6],[5,7],[6,10],[9,12],[8,13],[0,8],[9,11],[8,8],[8,6],[8,7]]"
+  ),
+  path: [],
+  select: selects.obstacle.add,
+  isClicked: false,
+};
+
 export default function Home() {
-  const [grid, setGrid] = useState([10, 15]);
-  const [start, setStart] = useState([0, 0]);
-  const [end, setEnd] = useState([9, 14]);
-  const [select, setSelect] = useState(selects.start);
-  const [obstacles, setObstacles] = useState([
-    [0, 4],
-    [3, 5],
-  ]);
-  const [path, setPath] = useState([]);
-  const [isClicked, setIsClicked] = useState(false);
+  const [grid, setGrid] = useState(defaults.grid);
+  const [start, setStart] = useState(defaults.start);
+  const [end, setEnd] = useState(defaults.end);
+  const [select, setSelect] = useState(defaults.select);
+  const [obstacles, setObstacles] = useState(defaults.obstacles);
+  const [path, setPath] = useState(defaults.path);
+  const [isClicked, setIsClicked] = useState(defaults.isClicked);
 
   const handlePlay = () => {
     setPath(shortestPath(grid, obstacles, start, end));
   };
 
+  const handleReset = () => {
+    setGrid(defaults.grid);
+    setStart(defaults.start);
+    setEnd(defaults.end);
+    setObstacles(defaults.obstacles);
+    setPath(defaults.path);
+    setSelect(defaults.select);
+    setIsClicked(defaults.isClicked);
+  };
+
   return (
     <div className="flex items-center justify-center h-[100vh] select-none">
       <div>
-        <div className="flex justify-between items-center">
-          <button
-            onClick={handlePlay}
-            className={`px-4 py-2 border ${
-              false
-                ? "bg-slate-700 text-white"
-                : "bg-slate-300 hover:border-slate-700"
-            }`}
-          >
-            Play
-          </button>
-          <div className="flex items-center p-1 gap-1">
+        <div>
+          <div className="flex justify-between items-center p-1 gap-1">
+            <div>
+              <button
+                onClick={() => {
+                  setSelect(selects.obstacle.add);
+                }}
+                className={`px-4 py-2 border ${
+                  select === selects.obstacle.add
+                    ? "bg-slate-700 text-white"
+                    : "bg-slate-300 hover:border-slate-700"
+                }`}
+              >
+                Add Obstacles
+              </button>
+              <button
+                onClick={() => {
+                  setSelect(selects.obstacle.remove);
+                }}
+                className={`px-4 py-2 border ${
+                  select === selects.obstacle.remove
+                    ? "bg-slate-700 text-white"
+                    : "bg-slate-300 hover:border-slate-700"
+                }`}
+              >
+                Remove Obstacles
+              </button>
+            </div>
             <button
               onClick={() => {
-                setSelect(selects.start);
+                setObstacles([]);
               }}
-              className={`px-4 py-2 border ${
-                select === selects.start
-                  ? "bg-slate-700 text-white"
-                  : "bg-slate-300 hover:border-slate-700"
-              }`}
+              className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
             >
-              Move Start
+              Clear Obstacles
             </button>
-            <button
-              onClick={() => {
-                setSelect(selects.end);
-              }}
-              className={`px-4 py-2 border ${
-                select === selects.end
-                  ? "bg-slate-700 text-white"
-                  : "bg-slate-300 hover:border-slate-700"
-              }`}
-            >
-              Move End
-            </button>
-            <button
-              onClick={() => {
-                setSelect(selects.obstacle.add);
-              }}
-              className={`px-4 py-2 border ${
-                select === selects.obstacle.add
-                  ? "bg-slate-700 text-white"
-                  : "bg-slate-300 hover:border-slate-700"
-              }`}
-            >
-              Add Obstacles
-            </button>
-            <button
-              onClick={() => {
-                setSelect(selects.obstacle.remove);
-              }}
-              className={`px-4 py-2 border ${
-                select === selects.obstacle.remove
-                  ? "bg-slate-700 text-white"
-                  : "bg-slate-300 hover:border-slate-700"
-              }`}
-            >
-              Remove Obstacles
-            </button>
+            <div>
+              <button
+                onClick={() => {
+                  setSelect(selects.start);
+                }}
+                className={`px-4 py-2 border ${
+                  select === selects.start
+                    ? "bg-slate-700 text-white"
+                    : "bg-slate-300 hover:border-slate-700"
+                }`}
+              >
+                Move Start
+              </button>
+              <button
+                onClick={() => {
+                  setSelect(selects.end);
+                }}
+                className={`px-4 py-2 border ${
+                  select === selects.end
+                    ? "bg-slate-700 text-white"
+                    : "bg-slate-300 hover:border-slate-700"
+                }`}
+              >
+                Move End
+              </button>
+            </div>
           </div>
         </div>
         <div
@@ -122,7 +143,7 @@ export default function Home() {
                         ? "cursor-default " +
                           (isStart || isEnd ? "bg-gray-900" : "bg-orange-600")
                         : isPath
-                        ? "bg-lime-600"
+                        ? "bg-gray-600"
                         : "bg-green-600 hover:bg-green-700 cursor-pointer"
                     } text-white`}
                     onMouseDown={() => {
@@ -157,6 +178,20 @@ export default function Home() {
               })}
             </div>
           ))}
+        </div>
+        <div className="pt-1 flex justify-center gap-1">
+          <button
+            onClick={handlePlay}
+            className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
+          >
+            Find Path
+          </button>
+          <button
+            onClick={handleReset}
+            className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
+          >
+            Reset
+          </button>
         </div>
       </div>
     </div>
