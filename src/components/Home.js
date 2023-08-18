@@ -49,8 +49,122 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center h-[100vh] select-none">
       <div>
+        <div className="flex justify-between items-center py-1">
+          <div>
+            <form>
+              <input
+                type="text"
+                className="border-2 border-gray-700/50 rounded-md py-2 w-14 ml-1 px-3 text-xl opacity-60 cursor-not-allowed"
+                disabled
+                // onChange={(e) => {
+                //   const value = Number(e.target.value);
+                //   if (value >= 0 && value <= 15) {
+                //     setGrid([value, grid[1]]);
+                //   }
+                // }}
+                value={grid[0]}
+              />
+              <input
+                type="text"
+                className="border-2 border-gray-700/50 rounded-md py-2 w-14 ml-1 px-3 text-xl opacity-60 cursor-not-allowed"
+                disabled
+                // onChange={(e) => {
+                //   const value = Number(e.target.value);
+                //   if (value >= 0 && value <= 15) {
+                //     setGrid([grid[0], value]);
+                //   }
+                // }}
+                value={grid[1]}
+              />
+            </form>
+          </div>
+          <div className="flex justify-center gap-1">
+            <button
+              onClick={handleReset}
+              className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
+            >
+              Reset
+            </button>
+            <button
+              onClick={handlePlay}
+              className={`px-4 py-2 border bg-slate-300 hover:border-slate-700 font-bold`}
+            >
+              Find Path
+            </button>
+          </div>
+        </div>
+
+        <div
+          className="flex flex-col border-8 border-[groove] border-gray-500 h-[80vh] w-[90vw]"
+          onMouseDown={() => setIsClicked(true)}
+          onMouseUp={() => setIsClicked(false)}
+        >
+          {makeGrid(...grid).map((row, i) => (
+            <div key={i} className="flex h-full w-full">
+              {row.map((_, j) => {
+                const isStart = start[0] === i && start[1] === j;
+                const isEnd = end[0] === i && end[1] === j;
+                const isObstacle = !!obstacles.find(
+                  (obs) => obs[0] === i && obs[1] === j
+                );
+                const isPath = !!path.find(
+                  (block) => block[0] === i && block[1] === j
+                );
+                const isOccupied = isStart || isEnd || isObstacle;
+                const addObstacle = () => setObstacles([...obstacles, [i, j]]);
+                const removeObstacle = () =>
+                  setObstacles(
+                    obstacles.filter((obs) => !(obs[0] === i && obs[1] === j))
+                  );
+
+                return (
+                  <div
+                    key={`${i}${j}`}
+                    className={`border-b border-l border-gray-200/20 inline-flex items-center justify-center w-full h-full ${
+                      isOccupied
+                        ? "cursor-default " +
+                          (isStart || isEnd ? "bg-gray-900" : "bg-gray-600")
+                        : isPath
+                        ? "bg-green-950"
+                        : "bg-green-600 hover:bg-green-700 cursor-pointer"
+                    } text-white`}
+                    onMouseDown={() => {
+                      if (!isOccupied) {
+                        if (select === selects.start) setStart([i, j]);
+                        else if (select === selects.end) setEnd([i, j]);
+                        else if (select === selects.obstacle.add) addObstacle();
+                      } else if (select === selects.obstacle.remove)
+                        removeObstacle();
+                    }}
+                    onMouseOver={() => {
+                      if (isClicked) {
+                        if (select === selects.obstacle.add && !isOccupied) {
+                          addObstacle();
+                        } else if (
+                          select === selects.obstacle.remove &&
+                          isObstacle
+                        )
+                          removeObstacle();
+                      }
+                    }}
+                  >
+                    {isStart ? (
+                      "Start"
+                    ) : isEnd ? (
+                      "End"
+                    ) : (
+                      <span className="invisible">
+                        {false ? i * grid[1] + j + 1 : "0"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
         <div>
-          <div className="flex justify-between items-center p-1 gap-1">
+          <div className="flex justify-between items-center py-1 gap-1">
             <div>
               <button
                 onClick={() => {
@@ -112,86 +226,6 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </div>
-        <div
-          className="flex flex-col border-8 border-[groove] border-gray-500"
-          onMouseDown={() => setIsClicked(true)}
-          onMouseUp={() => setIsClicked(false)}
-        >
-          {makeGrid(...grid).map((row, i) => (
-            <div key={i} className="flex">
-              {row.map((_, j) => {
-                const isStart = start[0] === i && start[1] === j;
-                const isEnd = end[0] === i && end[1] === j;
-                const isObstacle = !!obstacles.find(
-                  (obs) => obs[0] === i && obs[1] === j
-                );
-                const isPath = !!path.find(
-                  (block) => block[0] === i && block[1] === j
-                );
-                const isOccupied = isStart || isEnd || isObstacle;
-                const addObstacle = () => setObstacles([...obstacles, [i, j]]);
-                const removeObstacle = () =>
-                  setObstacles(
-                    obstacles.filter((obs) => !(obs[0] === i && obs[1] === j))
-                  );
-                return (
-                  <div
-                    key={`${i}${j}`}
-                    className={`inline-flex items-center justify-center w-12 h-12 ${
-                      isOccupied
-                        ? "cursor-default " +
-                          (isStart || isEnd ? "bg-gray-900" : "bg-orange-600")
-                        : isPath
-                        ? "bg-gray-600"
-                        : "bg-green-600 hover:bg-green-700 cursor-pointer"
-                    } text-white`}
-                    onMouseDown={() => {
-                      if (!isOccupied) {
-                        if (select === selects.start) setStart([i, j]);
-                        else if (select === selects.end) setEnd([i, j]);
-                        else if (select === selects.obstacle.add) addObstacle();
-                      } else if (select === selects.obstacle.remove)
-                        removeObstacle();
-                    }}
-                    onMouseOver={() => {
-                      if (isClicked) {
-                        if (select === selects.obstacle.add && !isOccupied) {
-                          addObstacle();
-                        } else if (
-                          select === selects.obstacle.remove &&
-                          isObstacle
-                        )
-                          removeObstacle();
-                      }
-                    }}
-                  >
-                    {isStart
-                      ? "Start"
-                      : isEnd
-                      ? "End"
-                      : isObstacle
-                      ? "XX"
-                      : `${i * grid[1] + j + 1}`}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        <div className="pt-1 flex justify-center gap-1">
-          <button
-            onClick={handlePlay}
-            className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
-          >
-            Find Path
-          </button>
-          <button
-            onClick={handleReset}
-            className={`px-4 py-2 border bg-slate-300 hover:border-slate-700`}
-          >
-            Reset
-          </button>
         </div>
       </div>
     </div>
