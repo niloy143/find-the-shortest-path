@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { shortestPath } from "../utils/shortest-path";
 
 const makeGrid = (x, y) => Array(x).fill(Array(y).fill(0));
 const selects = {
@@ -19,60 +20,77 @@ export default function Home() {
     [0, 4],
     [3, 5],
   ]);
+  const [path, setPath] = useState([]);
   const [isClicked, setIsClicked] = useState(false);
+
+  const handlePlay = () => {
+    setPath(shortestPath(grid, obstacles, start, end));
+  };
 
   return (
     <div className="flex items-center justify-center h-[100vh] select-none">
       <div>
-        <div className="flex justify-end p-1 gap-1">
+        <div className="flex justify-between items-center">
           <button
-            onClick={() => {
-              setSelect(selects.start);
-            }}
+            onClick={handlePlay}
             className={`px-4 py-2 border ${
-              select === selects.start
+              false
                 ? "bg-slate-700 text-white"
                 : "bg-slate-300 hover:border-slate-700"
             }`}
           >
-            Move Start
+            Play
           </button>
-          <button
-            onClick={() => {
-              setSelect(selects.end);
-            }}
-            className={`px-4 py-2 border ${
-              select === selects.end
-                ? "bg-slate-700 text-white"
-                : "bg-slate-300 hover:border-slate-700"
-            }`}
-          >
-            Move End
-          </button>
-          <button
-            onClick={() => {
-              setSelect(selects.obstacle.add);
-            }}
-            className={`px-4 py-2 border ${
-              select === selects.obstacle.add
-                ? "bg-slate-700 text-white"
-                : "bg-slate-300 hover:border-slate-700"
-            }`}
-          >
-            Add Obstacles
-          </button>
-          <button
-            onClick={() => {
-              setSelect(selects.obstacle.remove);
-            }}
-            className={`px-4 py-2 border ${
-              select === selects.obstacle.remove
-                ? "bg-slate-700 text-white"
-                : "bg-slate-300 hover:border-slate-700"
-            }`}
-          >
-            Remove Obstacles
-          </button>
+          <div className="flex items-center p-1 gap-1">
+            <button
+              onClick={() => {
+                setSelect(selects.start);
+              }}
+              className={`px-4 py-2 border ${
+                select === selects.start
+                  ? "bg-slate-700 text-white"
+                  : "bg-slate-300 hover:border-slate-700"
+              }`}
+            >
+              Move Start
+            </button>
+            <button
+              onClick={() => {
+                setSelect(selects.end);
+              }}
+              className={`px-4 py-2 border ${
+                select === selects.end
+                  ? "bg-slate-700 text-white"
+                  : "bg-slate-300 hover:border-slate-700"
+              }`}
+            >
+              Move End
+            </button>
+            <button
+              onClick={() => {
+                setSelect(selects.obstacle.add);
+              }}
+              className={`px-4 py-2 border ${
+                select === selects.obstacle.add
+                  ? "bg-slate-700 text-white"
+                  : "bg-slate-300 hover:border-slate-700"
+              }`}
+            >
+              Add Obstacles
+            </button>
+            <button
+              onClick={() => {
+                setSelect(selects.obstacle.remove);
+              }}
+              className={`px-4 py-2 border ${
+                select === selects.obstacle.remove
+                  ? "bg-slate-700 text-white"
+                  : "bg-slate-300 hover:border-slate-700"
+              }`}
+            >
+              Remove Obstacles
+            </button>
+          </div>
         </div>
         <div
           className="flex flex-col border-8 border-[groove] border-gray-500"
@@ -87,6 +105,9 @@ export default function Home() {
                 const isObstacle = !!obstacles.find(
                   (obs) => obs[0] === i && obs[1] === j
                 );
+                const isPath = !!path.find(
+                  (block) => block[0] === i && block[1] === j
+                );
                 const isOccupied = isStart || isEnd || isObstacle;
                 const addObstacle = () => setObstacles([...obstacles, [i, j]]);
                 const removeObstacle = () =>
@@ -100,6 +121,8 @@ export default function Home() {
                       isOccupied
                         ? "cursor-default " +
                           (isStart || isEnd ? "bg-gray-900" : "bg-orange-600")
+                        : isPath
+                        ? "bg-lime-600"
                         : "bg-green-600 hover:bg-green-700 cursor-pointer"
                     } text-white`}
                     onMouseDown={() => {
