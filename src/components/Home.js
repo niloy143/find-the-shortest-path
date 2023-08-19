@@ -95,7 +95,7 @@ export default function Home() {
         </div>
 
         <div
-          className="flex flex-col border-8 border-[groove] border-gray-500 h-[80vh] w-[90vw]"
+          className="flex flex-col border-8 border-[groove] border-gray-500 h-[80vh] w-[90vw] max-w-[1115px] max-h-[770px]"
           onMouseDown={() => setIsClicked(true)}
           onMouseUp={() => setIsClicked(false)}
         >
